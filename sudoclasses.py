@@ -65,9 +65,7 @@ class Population(object):
         self.fitnesses = [(index, x.get_fitness()) for (index, x) in enumerate(self.population)]
         # print(self.fitnesses)
 
-    def get_top_individuals(self):
-        # self.fitnesses.sort(key=lambda r: r[1])
-        # self.top_individuals = [self.population[self.fitnesses[i][0]] for i in range(2)]
+    def get_roullette(self):
         normalizer = sum(element[1] for element in self.fitnesses)
         while len(self.top_individuals) < 2:
             rando = random.choice(self.fitnesses)
@@ -76,6 +74,12 @@ class Population(object):
                     self.top_individuals.append(self.population[rando[0]])
 
         print(self.fitnesses[0][1])
+        # print(self.top_individuals)
+
+    def get_top_individuals(self):
+        self.fitnesses.sort(key=lambda r: r[1])
+        self.top_individuals = [self.population[self.fitnesses[i][0]] for i in range(2)]
+        # print(self.fitnesses[0][1])
         # print(self.top_individuals)
 
     def update_screen(self):
