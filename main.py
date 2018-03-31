@@ -22,8 +22,8 @@ def import_problem():
 def main():
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(10000, 35, .1, given_values)
-    print(pop.solution.get_fitness())
+    pop = Population(1000, 1,1, 0.01, given_values,10)
+    print(pop.solution)
 
 
 main()

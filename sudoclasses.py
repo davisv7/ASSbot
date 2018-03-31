@@ -4,25 +4,33 @@ from itertools import cycle
 
 
 class Population(object):
-    def __init__(self, size, generations, mRate, given_values):
+    def __init__(self, size, generations,poolsize, mRate, given_values,interval):
         self.populationsize = size
         self.mRate = mRate
+        self.poolsize =poolsize
         self.given_values = given_values
         self.population = []
         self.fitnesses = []
         self.top_individuals = []
         self.generation = 0
         self.populate()
-        self.get_fitnesses()
         self.get_top_individuals()
-
+        top = self.top_individuals[0]
         # self.wn = turtle.Screen()
         # self.Droo = turtle.Turtle()
         # self.Droo.speed(0)
         # self.pos = self.Droo.pos()
         for i in range(generations):
             self.repopulate()
-            # self.update_screen()
+            self.mutate_all()
+            self.population.append(top)
+            self.get_top_individuals()
+            # if top.get_fitness() >= self.top_individuals[0].get_fitness():
+            #     print('here')
+            #     self.top_individuals=[top]+self.top_individuals
+            #     self.top_individuals.pop()
+            top = self.top_individuals[0]
+            # if i%interval==0:self.update_screen()
             if self.fitnesses[0][1] == 0:
                 self.solution = self.top_individuals[0].board
                 break
@@ -38,28 +46,32 @@ class Population(object):
         self.population = []
         for i in range(self.populationsize):
             self.crossover()
-        self.top_individuals = []
-        self.get_fitnesses()
-        self.get_top_individuals()
-        # self.print()
 
     def crossover(self):
         # roworcol = random.randint(0, 2)
-        board = self.top_individuals[0].board
-        for j in range(1):
+        # try:
+        choices= [0,random.choice(range(0, self.poolsize))]
+        # except:
+        #     choices = [0, 0]
+        board = self.top_individuals[choices[0]].board
+        # print(self.top_individuals[choices[0]].get_fitness())
+        for j in range(8):
             roworcol = random.randint(0, 2)
-
             index = random.randint(0, 8)
             # roworcol=0
             if roworcol == 0:
-                board = board[:index] + self.top_individuals[1].get_row(index) + board[index + 1:]
+                board = board[:index] + self.top_individuals[choices[1]].get_row(index) + board[index + 1:]
             else:
-                col = self.top_individuals[1].get_col(index)
+                col = self.top_individuals[choices[1]].get_col(index)
                 for i in range(9):
                     # print(i,index)
                     board[i][index] = col[i]
             # print(board)
         self.population.append(Board(self.given_values, board, self.mRate))
+
+    def mutate_all(self):
+        for ele in self.population:
+            ele.mutate()
 
     def get_fitnesses(self):
         self.fitnesses = [(index, x.get_fitness()) for (index, x) in enumerate(self.population)]
@@ -77,23 +89,24 @@ class Population(object):
         # print(self.top_individuals)
 
     def get_top_individuals(self):
+        self.get_fitnesses()
         self.fitnesses.sort(key=lambda r: r[1])
-        self.top_individuals = [self.population[self.fitnesses[i][0]] for i in range(2)]
-        # print(self.fitnesses[0][1])
-        # print(self.top_individuals)
+        self.top_individuals = [self.population[self.fitnesses[i][0]] for i in range(self.poolsize)]
+        print(self.fitnesses[0][1])
 
     def update_screen(self):
         self.wn.clear()
-        pcycle = cycle([(self.pos[0] + i * 15, self.pos[0] - j * 15) for j in range(0, 9) for i in range(0, 9)])
+        pcycle = cycle([(self.pos[0] + i * 20, self.pos[0] - j * 20) for j in range(0, 9) for i in range(0, 9)])
         x, y = self.pos
         self.Droo.penup()
         self.Droo.goto(next(pcycle))
         for row in self.top_individuals[0].board:
             for cell in row:
-                self.Droo.write(cell)
+                self.Droo.write(cell,font=('Arial',16,'normal'))
                 self.Droo.goto(next(pcycle))
-        self.Droo.goto(-150, 0)
-        self.Droo.write(self.fitnesses[0][1])
+        self.Droo.goto(-150, 20)
+        self.Droo.write(self.fitnesses[0][1],font=('Arial',16,'normal'))
+
 
 
 class Board(object):
@@ -104,9 +117,9 @@ class Board(object):
         if self.board == None:
             self.generate()
             self.fill()
-        else:
-            self.mutate()
-            self.fill()
+        # else:
+        #     self.mutate()
+            # self.fill()
         # print(self.board)
 
     def generate(self):
@@ -131,8 +144,8 @@ class Board(object):
                     continue
                 else:
                     if random.uniform(0, 1) < self.mRate:
-                        self.board[i][j] = ' '
-                        # self.board[i][j] = random.randint(1,9)
+                        # self.board[i][j] = ' '
+                        self.board[i][j] = str(random.randint(1,9))
 
     def get_fitness(self):
         score = 0
