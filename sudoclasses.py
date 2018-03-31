@@ -3,11 +3,12 @@ import random
 from itertools import cycle
 import copy
 
+
 class Population(object):
-    def __init__(self, size, generations,poolsize, mRate, given_values,interval):
+    def __init__(self, size, generations, poolsize, mRate, given_values, interval):
         self.populationsize = size
         self.mRate = mRate
-        self.poolsize =poolsize
+        self.poolsize = poolsize
         self.given_values = given_values
         self.population = []
         self.fitnesses = []
@@ -16,6 +17,7 @@ class Population(object):
         self.populate()
         self.get_top_individuals()
         top = copy.deepcopy(self.top_individuals[0])
+        print(self.top_individuals[0].get_fitness())
         # self.wn = turtle.Screen()
         # self.Droo = turtle.Turtle()
         # self.Droo.speed(0)
@@ -24,12 +26,11 @@ class Population(object):
 
             self.repopulate()
             self.mutate_all()
-            self.population[0]=top
+            self.population[0] = top
             self.get_top_individuals()
-            if self.top_individuals[0].get_fitness()<top.get_fitness():
+            if self.top_individuals[0].get_fitness() < top.get_fitness():
                 top = copy.deepcopy(self.top_individuals[0])
-                print(i,self.top_individuals[0].get_fitness())
-
+                print(i, self.top_individuals[0].get_fitness())
             # if i%interval==0:self.update_screen()
             if self.fitnesses[0][1] == 0:
                 self.solution = self.top_individuals[0].board
@@ -44,12 +45,12 @@ class Population(object):
 
     def repopulate(self):
         # self.population=[]
-        for i in range(1,self.populationsize):
+        for i in range(1, self.populationsize):
             self.crossover(i)
 
-    def crossover(self,ind):
-        if self.poolsize==1:return
-        choices= [0,random.choice(range(0, self.poolsize))]
+    def crossover(self, ind):
+        if self.poolsize == 1: return
+        choices = [0, random.choice(range(0, self.poolsize))]
         board = self.top_individuals[choices[0]].board
         # print(self.top_individuals[choices[0]].get_fitness())
         for j in range(8):
@@ -64,7 +65,7 @@ class Population(object):
                     # print(i,index)
                     board[i][index] = col[i]
             # print(board)
-        self.population[ind]=Board(self.given_values, board, self.mRate)
+        self.population[ind] = Board(self.given_values, board, self.mRate)
 
     def mutate_all(self):
         for ele in self.population[1:]:
@@ -99,11 +100,10 @@ class Population(object):
         self.Droo.goto(next(pcycle))
         for row in self.top_individuals[0].board:
             for cell in row:
-                self.Droo.write(cell,font=('Arial',16,'normal'))
+                self.Droo.write(cell, font=('Arial', 16, 'normal'))
                 self.Droo.goto(next(pcycle))
         self.Droo.goto(-150, 20)
-        self.Droo.write(self.fitnesses[0][1],font=('Arial',16,'normal'))
-
+        self.Droo.write(self.fitnesses[0][1], font=('Arial', 16, 'normal'))
 
 
 class Board(object):
@@ -115,8 +115,8 @@ class Board(object):
             self.generate()
             self.fill()
         # else:
-            # self.mutate()
-            # self.fill()
+        # self.mutate()
+        # self.fill()
         # print(self.board)
 
     def generate(self):
@@ -130,10 +130,13 @@ class Board(object):
         #     limit[self.given_values[val]]-=1
         for i, row in enumerate(self.board):
             for j, cell in enumerate(row):
-                if self.board[i][j] == ' ':
-                    # choice = random.choice([x for x in limit])
-                    choice = str(random.randint(1,9))
+                if (i, j) in self.given_values:
+                    continue
+                elif self.board[i][j] == ' ':
+                    choice = random.randint(1, 9)
                     self.board[i][j] = choice
+                    # print(self.board)
+                    # choice = random.choice([x for x in limit])
                     # limit[choice]-=1
                 # limit[self.board[i][j]]-=1
                 # limit = {str(k):limit[k] for k in limit if limit[k]>0}
@@ -146,7 +149,7 @@ class Board(object):
                 else:
                     if random.uniform(0, 1) < self.mRate:
                         # self.board[i][j] = ' '
-                        self.board[i][j] = str(random.randint(1,9))
+                        self.board[i][j] = str(random.randint(1, 9))
 
     def get_fitness(self):
         score = 0

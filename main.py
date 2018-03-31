@@ -2,7 +2,6 @@ import ast
 from sudoclasses import Population
 
 
-
 def find_values(board):
     indices = {}
     for i, r in enumerate(board):
@@ -22,7 +21,7 @@ def import_problem():
 def main():
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(15000, 100000,1, .3, given_values,100)
+    pop = Population(5000, 100000, 1, .3, given_values, 100)
     print(pop.solution)
 
 
