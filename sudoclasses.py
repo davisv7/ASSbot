@@ -43,7 +43,6 @@ class Population(object):
             self.population.append(Board(self.given_values, mutation=self.mRate))
 
     def repopulate(self):
-        self.population = []
         for i in range(self.populationsize):
             self.crossover()
 
