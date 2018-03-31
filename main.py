@@ -22,7 +22,7 @@ def import_problem():
 def main():
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(1000, 1,1, 0.01, given_values,10)
+    pop = Population(15000, 100000,1, .3, given_values,100)
     print(pop.solution)
 
 
