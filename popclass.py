@@ -11,67 +11,81 @@ class Population(object):
         self.mRate = mRate
         self.poolsize = poolsize
         self.given_values = given_values
-        self.generations=generations
+        self.generations = generations
         self.population = []
         self.fitnesses = []
         self.top_individuals = []
         self.generation = 0
         self.populate()
         self.get_top_individuals()
+        # self.get_roullette()
         self.top = copy.deepcopy(self.top_individuals[0])
         print(self.top_individuals[0].get_fitness())
         # self.create_screen()
-        self.mult=.005
-        self.og=mRate
+        self.og = mRate
+        self.mult = .0001
+        self.max = self.og + .03
         self.regenerate(interval)
-        self.create_screen()
+        # self.create_screen()
         self.update_screen()
         self.wn.exitonclick()
 
-    def regenerate(self,interval):
+    def regenerate(self, interval):
         for i in range(self.generations):
             self.repopulate()
             self.mutate_all()
-            self.population[0] = self.top
+            self.population[0] = copy.deepcopy(self.top)
             self.get_top_individuals()
-            if self.top.get_fitness()>self.top_individuals[0].get_fitness():
-                self.top = copy.copy(self.top_individuals[0])
-                self.mRate=self.og
-                # print(i, self.top.get_fitness())
-                # self.update_screen()
-                # continue
-            if self.top_individuals[0].get_fitness() == self.top.get_fitness():
-                self.mRate+=self.mult
+            # self.get_roullette()
+
+            # print when the fitness changes
+            if interval == 0:
+                if self.top.get_fitness() != self.top_individuals[0].get_fitness():
+                    print(i, self.top.get_fitness(), self.mRate)
+                    # self.update_screen()
+            elif i % interval == 0:
+                # print at an interval
+                print(i, self.top.get_fitness(), self.mRate)
+
+            # update fitness, reset mult
+            if self.top.get_fitness() > self.top_individuals[0].get_fitness():
+                self.top = copy.deepcopy(self.top_individuals[0])
+                self.mRate = self.og
+            elif self.top_individuals[0].get_fitness() == self.top.get_fitness():
+                # increment mult towards max
+                self.mRate = self.mRate + self.mult
+                self.mRate = round(min(self.mRate + self.mult, self.max), 7)
+                # reset
+                if self.mRate == self.max:
+                    self.mRate = self.og
             if self.top.get_fitness() == 0:
+                # solution reached
                 self.solution = self.top.board
                 break
-            if i %interval ==0:
-                print(i, self.top.get_fitness(),self.mRate)
-                # self.update_screen()
-        else:
-            self.solution = self.top_individuals[0]
+        else: # end of generations
+            self.solution = self.top.board
 
     def populate(self):
         for i in range(self.populationsize):
             self.population.append(Board(self.given_values, mutation=self.mRate))
 
     def repopulate(self):
+        self.population = self.population[:1]
         for i in range(1, self.populationsize):
-            self.crossover(i)
+            self.crossover()
 
-    def crossover(self, ind):
-        choice = random.randint(0, self.poolsize-1)
+    def crossover(self):
+        choice = random.randint(0, self.poolsize - 1)
         board = copy.deepcopy(self.top.board)
-        for j in range(1):
-            roworcol = random.randint(0, 1)
-            index = random.randint(0, 8)
-            if roworcol == 0:
-                board = board[:index] + self.top_individuals[choice].get_row(index) + board[index + 1:]
-            else:
-                col = self.top_individuals[choice].get_col(index)
-                for i in range(9):
-                    board[i][index] = col[i]
-        self.population[ind] = Board(self.given_values, board, self.mRate)
+        roworcol = random.randint(0, 1)
+        index = random.randint(0, 8)
+        if roworcol == 0:
+            board = board[:index] + self.top_individuals[choice].get_row(index) + board[index + 1:]
+        else:
+            col = self.top_individuals[choice].get_col(index)
+            for i in range(len(col)):
+                board[i][index] = col[i]
+        self.population.append(Board(self.given_values, board, self.mRate))
 
     def mutate_all(self):
         for i in range(1, len(self.population)):
@@ -81,8 +95,9 @@ class Population(object):
         self.fitnesses = [(index, x.get_fitness()) for (index, x) in enumerate(self.population)]
 
     def get_roullette(self):
+        self.get_fitnesses()
         normalizer = sum(element[1] for element in self.fitnesses)
-        while len(self.top_individuals) < 2:
+        while len(self.top_individuals) < self.poolsize:
             rando = random.choice(self.fitnesses)
             if random.uniform(0, 1) > rando[1] / normalizer:
                 if self.population[rando[0]] not in self.top_individuals:

@@ -18,11 +18,19 @@ def import_problem():
         return board
 
 
+def import_solution():
+    with open('solution.in', 'r') as fileobj:
+        lines = fileobj.readlines()
+        board = [ast.literal_eval(x) for x in lines]
+        return board
+
+
 def main():
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(20, 50000, 2, .02, given_values, 100)
+    pop = Population(750, 50000, 3, .05, given_values, 0)
     [print(x) for x in pop.solution]
+    print(import_solution() == pop.solution)
 
 
 main()

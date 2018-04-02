@@ -31,22 +31,34 @@ class Board(object):
                 if (i, j) in self.given_values:
                     continue
                 else:
-                    if random.uniform(0, 1) < self.mRate:
+                    if random.uniform(0, 1) <= self.mRate:
                         self.board[i][j] = str(random.randint(1, 9))
 
     def get_fitness(self):
         score = 0
         for row in self.romanizer():
-            score += 9 - len(set(row))
+            score += (9 - len(set(row)))
         for col in self.columizer():
-            score += 9 - len(set(col))
-        return score
+            score += (9 - len(set(col)))
+        for block in self.blocker():
+            score += (9 - len(set(block)))
+        return round(score/216,6)
 
     def romanizer(self):
         return [x for x in self.board]
 
     def columizer(self):
         return [[self.board[j][i] for j in range(len(self.board[i]))] for i in range(len(self.board))]
+
+    def blocker(self):
+        blist = []
+        for i in range(9, 3):
+            for j in range(9, 3):
+                chunk = self.board[i:i + 3]
+                block = [x[j:j + 3] for x in chunk]
+                flat_block = [item for sublist in block for item in sublist]
+                blist.append(flat_block)
+        return blist
 
     def get_row(self, index):
         return [self.board[index]]
