@@ -23,17 +23,17 @@ class Population(object):
         print(self.top_individuals[0].get_fitness())
         # self.create_screen()
         self.og = mRate
-        self.mult = .0001
-        self.max = self.og + .03
+        self.mult = .001
+        self.max = .07
         self.regenerate(interval)
-        # self.create_screen()
+        self.create_screen()
         self.update_screen()
         self.wn.exitonclick()
 
     def regenerate(self, interval):
         for i in range(self.generations):
             self.repopulate()
-            self.mutate_all()
+            # self.mutate_all()
             self.population[0] = copy.deepcopy(self.top)
             self.get_top_individuals()
             # self.get_roullette()
@@ -53,8 +53,8 @@ class Population(object):
                 self.mRate = self.og
             elif self.top_individuals[0].get_fitness() == self.top.get_fitness():
                 # increment mult towards max
-                self.mRate = self.mRate + self.mult
-                self.mRate = round(min(self.mRate + self.mult, self.max), 7)
+                # self.mRate = self.mRate + self.mult
+                self.mRate = round(min(self.mRate +self.mult, self.max), 7)
                 # reset
                 if self.mRate == self.max:
                     self.mRate = self.og
@@ -77,14 +77,15 @@ class Population(object):
     def crossover(self):
         choice = random.randint(0, self.poolsize - 1)
         board = copy.deepcopy(self.top.board)
-        roworcol = random.randint(0, 1)
-        index = random.randint(0, 8)
-        if roworcol == 0:
-            board = board[:index] + self.top_individuals[choice].get_row(index) + board[index + 1:]
-        else:
-            col = self.top_individuals[choice].get_col(index)
-            for i in range(len(col)):
-                board[i][index] = col[i]
+        for j in range(2):
+            roworcol = random.randint(0, 1)
+            index = random.randint(0, 8)
+            if roworcol == 0:
+                board = board[:index] + self.top_individuals[choice].get_row(index) + board[index + 1:]
+            else:
+                col = self.top_individuals[choice].get_col(index)
+                for i in range(len(col)):
+                    board[i][index] = col[i]
         self.population.append(Board(self.given_values, board, self.mRate))
 
     def mutate_all(self):

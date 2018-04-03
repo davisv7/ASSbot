@@ -9,6 +9,9 @@ class Board(object):
         if self.board == None:
             self.generate()
             self.fill()
+        else:
+            self.mutate()
+            self.fill()
 
     def generate(self):
         self.board = [[' ' for i in range(9)] for j in range(9)]
@@ -16,13 +19,17 @@ class Board(object):
             self.board[key[0]][key[1]] = self.given_values[key]
 
     def fill(self):
+        # limit = {str(x):9 for x in range(1,10)}
         for i, row in enumerate(self.board):
             for j, cell in enumerate(row):
                 if (i, j) in self.given_values:
+                    # limit[self.board[i][j]]-=1
                     continue
                 elif self.board[i][j] == ' ':
                     choice = str(random.randint(1, 9))
+                    # choice = random.choice([x for x in limit])
                     self.board[i][j] = choice
+                    # limit[self.board[i][j]]-=1
                     continue
 
     def mutate(self):
@@ -33,6 +40,7 @@ class Board(object):
                 else:
                     if random.uniform(0, 1) <= self.mRate:
                         self.board[i][j] = str(random.randint(1, 9))
+                        # self.board[i][j] = ' '
 
     def get_fitness(self):
         score = 0
@@ -42,7 +50,7 @@ class Board(object):
             score += (9 - len(set(col)))
         for block in self.blocker():
             score += (9 - len(set(block)))
-        return round(score/216,6)
+        return round(score,6)
 
     def romanizer(self):
         return [x for x in self.board]

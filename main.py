@@ -28,7 +28,7 @@ def import_solution():
 def main():
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(750, 50000, 3, .05, given_values, 0)
+    pop = Population(100, 70000, 2, .01, given_values, 0)
     [print(x) for x in pop.solution]
     print(import_solution() == pop.solution)
 
