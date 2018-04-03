@@ -9,9 +9,9 @@ class Board(object):
         if self.board == None:
             self.generate()
             self.fill()
-        else:
-            self.mutate()
-            self.fill()
+        # else:
+        #     self.mutate()
+        #     self.fill()
 
     def generate(self):
         self.board = [[' ' for i in range(9)] for j in range(9)]
@@ -58,15 +58,16 @@ class Board(object):
     def columizer(self):
         return [[self.board[j][i] for j in range(len(self.board[i]))] for i in range(len(self.board))]
 
-    def blocker(self):
-        blist = []
-        for i in range(9, 3):
-            for j in range(9, 3):
-                chunk = self.board[i:i + 3]
-                block = [x[j:j + 3] for x in chunk]
-                flat_block = [item for sublist in block for item in sublist]
-                blist.append(flat_block)
-        return blist
+    def blocker(self): #TODO Fix this!
+        blocklist = []
+        for i in range(3):
+            chunk = self.board[i * 3:i * 3 + 3]
+            for j in range(3):
+                block = []
+                for k in range(3):
+                    block += chunk[k][j * 3:j * 3 + 3]
+                blocklist.append(block)
+        return blocklist
 
     def get_row(self, index):
         return [self.board[index]]

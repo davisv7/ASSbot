@@ -1,6 +1,6 @@
 import ast
 from popclass import Population
-
+import time
 
 def find_values(board):
     indices = {}
@@ -26,11 +26,15 @@ def import_solution():
 
 
 def main():
+    start = time.time()
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(100, 70000, 2, .01, given_values, 0)
+    pop = Population(1000, 50000, 2, 0.02, given_values, 0)
     [print(x) for x in pop.solution]
     print(import_solution() == pop.solution)
+    end = time.time()
+    print('Time taken: {}'.format(end-start))
 
 
 main()
+

@@ -20,11 +20,11 @@ class Population(object):
         self.get_top_individuals()
         # self.get_roullette()
         self.top = copy.deepcopy(self.top_individuals[0])
-        print(self.top_individuals[0].get_fitness())
+        # print(self.top_individuals[0].get_fitness())
         # self.create_screen()
         self.og = mRate
         self.mult = .001
-        self.max = .07
+        self.max = self.mRate+.04
         self.regenerate(interval)
         self.create_screen()
         self.update_screen()
@@ -33,7 +33,7 @@ class Population(object):
     def regenerate(self, interval):
         for i in range(self.generations):
             self.repopulate()
-            # self.mutate_all()
+            self.mutate_all()
             self.population[0] = copy.deepcopy(self.top)
             self.get_top_individuals()
             # self.get_roullette()
@@ -45,7 +45,7 @@ class Population(object):
                     # self.update_screen()
             elif i % interval == 0:
                 # print at an interval
-                print(i, self.top.get_fitness(), self.mRate)
+                print(i, self.top_individuals[0].get_fitness(), self.mRate)
 
             # update fitness, reset mult
             if self.top.get_fitness() > self.top_individuals[0].get_fitness():
@@ -53,7 +53,7 @@ class Population(object):
                 self.mRate = self.og
             elif self.top_individuals[0].get_fitness() == self.top.get_fitness():
                 # increment mult towards max
-                # self.mRate = self.mRate + self.mult
+                self.mRate = self.mRate + self.mult
                 self.mRate = round(min(self.mRate +self.mult, self.max), 7)
                 # reset
                 if self.mRate == self.max:
