@@ -30,7 +30,7 @@ class Population(object):
         self.update_screen()
         self.wn.exitonclick()
 
-    def regenerate(self, interval):
+    def regenerate(self, interval): #TODO instead of retaining the overall max, just retain the max of the generation
         for i in range(self.generations):
             self.repopulate()
             self.mutate_all()
