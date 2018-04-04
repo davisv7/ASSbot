@@ -19,7 +19,7 @@ class Population(object):
         self.populate()
         self.get_top_individuals()
         # self.get_roullette()
-        self.top = copy.deepcopy(self.top_individuals[0])
+        self.top_fitness = self.top_individuals[0].get_fitness()
         # print(self.top_individuals[0].get_fitness())
         # self.create_screen()
         self.og = mRate
@@ -34,36 +34,35 @@ class Population(object):
         for i in range(self.generations):
             self.repopulate()
             self.mutate_all()
-            self.population[0] = copy.deepcopy(self.top)
             self.get_top_individuals()
             # self.get_roullette()
 
             # print when the fitness changes
             if interval == 0:
-                if self.top.get_fitness() != self.top_individuals[0].get_fitness():
-                    print(i, self.top.get_fitness(), self.mRate)
+                if self.top_fitness != self.top_individuals[0].get_fitness():
+                    print(i, self.top_fitness, self.mRate)
                     # self.update_screen()
             elif i % interval == 0:
                 # print at an interval
                 print(i, self.top_individuals[0].get_fitness(), self.mRate)
 
             # update fitness, reset mult
-            if self.top.get_fitness() > self.top_individuals[0].get_fitness():
-                self.top = copy.deepcopy(self.top_individuals[0])
+            if self.top_fitness > self.top_individuals[0].get_fitness():
+                self.top_fitness = self.top_individuals[0].get_fitness()
                 self.mRate = self.og
-            elif self.top_individuals[0].get_fitness() == self.top.get_fitness():
+            elif self.top_individuals[0].get_fitness() == self.top_fitness:
                 # increment mult towards max
                 self.mRate = self.mRate + self.mult
                 self.mRate = round(min(self.mRate +self.mult, self.max), 7)
-                # reset
+                # reset mult
                 if self.mRate == self.max:
                     self.mRate = self.og
-            if self.top.get_fitness() == 0:
+            if self.top_individuals[0].get_fitness() == 0:
                 # solution reached
-                self.solution = self.top.board
+                self.solution = self.top_individuals[0].board
                 break
         else: # end of generations
-            self.solution = self.top.board
+            self.solution = self.top_individuals[0].board
 
     def populate(self):
         for i in range(self.populationsize):
@@ -76,7 +75,7 @@ class Population(object):
 
     def crossover(self):
         choice = random.randint(0, self.poolsize - 1)
-        board = copy.deepcopy(self.top.board)
+        board = copy.deepcopy(self.top_individuals[0].board)
         for j in range(2):
             roworcol = random.randint(0, 1)
             index = random.randint(0, 8)
@@ -126,4 +125,4 @@ class Population(object):
                 self.Droo.write(cell, font=('Arial', 16, 'normal'))
                 self.Droo.goto(next(pcycle))
         self.Droo.goto(-150, 20)
-        self.Droo.write(self.top.get_fitness(), font=('Arial', 16, 'normal'))
+        self.Droo.write(self.top_fitness, font=('Arial', 16, 'normal'))
