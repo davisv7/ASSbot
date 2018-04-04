@@ -50,7 +50,7 @@ class Board(object):
             score += (9 - len(set(col)))
         for block in self.blocker():
             score += (9 - len(set(block)))
-        return round(score,6)
+        return round(score/216,6)
 
     def romanizer(self):
         return [x for x in self.board]

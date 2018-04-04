@@ -23,14 +23,14 @@ class Population(object):
         # print(self.top_individuals[0].get_fitness())
         # self.create_screen()
         self.og = mRate
-        self.mult = .001
-        self.max = self.mRate+.04
+        self.mult = .005
+        self.max = .04
         self.regenerate(interval)
         self.create_screen()
         self.update_screen()
         self.wn.exitonclick()
 
-    def regenerate(self, interval): #TODO instead of retaining the overall max, just retain the max of the generation
+    def regenerate(self, interval):  # TODO instead of retaining the overall max, just retain the max of the generation
         for i in range(self.generations):
             self.repopulate()
             self.mutate_all()
@@ -40,8 +40,10 @@ class Population(object):
             # print when the fitness changes
             if interval == 0:
                 if self.top_fitness != self.top_individuals[0].get_fitness():
-                    print(i, self.top_fitness, self.mRate)
+                    # print(i, self.top_fitness, self.mRate)
+                    # self.top_fitness = self.top_individuals[0].get_fitness()
                     # self.update_screen()
+                    pass
             elif i % interval == 0:
                 # print at an interval
                 print(i, self.top_individuals[0].get_fitness(), self.mRate)
@@ -49,11 +51,13 @@ class Population(object):
             # update fitness, reset mult
             if self.top_fitness > self.top_individuals[0].get_fitness():
                 self.top_fitness = self.top_individuals[0].get_fitness()
+                print(i, self.top_fitness, self.mRate)
+                # self.update_screen()
                 self.mRate = self.og
             elif self.top_individuals[0].get_fitness() == self.top_fitness:
                 # increment mult towards max
                 self.mRate = self.mRate + self.mult
-                self.mRate = round(min(self.mRate +self.mult, self.max), 7)
+                self.mRate = round(min(self.mRate + self.mult, self.max), 7)
                 # reset mult
                 if self.mRate == self.max:
                     self.mRate = self.og
@@ -61,7 +65,7 @@ class Population(object):
                 # solution reached
                 self.solution = self.top_individuals[0].board
                 break
-        else: # end of generations
+        else:  # end of generations
             self.solution = self.top_individuals[0].board
 
     def populate(self):
@@ -74,21 +78,25 @@ class Population(object):
             self.crossover()
 
     def crossover(self):
-        choice = random.randint(0, self.poolsize - 1)
-        board = copy.deepcopy(self.top_individuals[0].board)
-        for j in range(2):
+        if self.poolsize == 1:
+            choices = [0, 0]
+        else:
+            choices = [0,random.randint(0, self.poolsize-1)]
+            # choices = random.sample(range(0, self.poolsize),2)
+        board = copy.deepcopy(self.top_individuals[choices[0]].board)
+        for j in range(1):
             roworcol = random.randint(0, 1)
             index = random.randint(0, 8)
             if roworcol == 0:
-                board = board[:index] + self.top_individuals[choice].get_row(index) + board[index + 1:]
+                board = board[:index] + self.top_individuals[choices[1]].get_row(index) + board[index + 1:]
             else:
-                col = self.top_individuals[choice].get_col(index)
+                col = self.top_individuals[choices[1]].get_col(index)
                 for i in range(len(col)):
                     board[i][index] = col[i]
         self.population.append(Board(self.given_values, board, self.mRate))
 
     def mutate_all(self):
-        for i in range(1, len(self.population)):
+        for i in range(len(self.population)):
             self.population[i].mutate()
 
     def get_fitnesses(self):
