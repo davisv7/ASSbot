@@ -52,7 +52,8 @@ class Population(object):
             if self.top_fitness > self.top_individuals[0].get_fitness():
                 self.top_fitness = self.top_individuals[0].get_fitness()
                 print(i, self.top_fitness, self.mRate)
-                # self.update_screen()
+                # if i>1000:
+                #     self.update_screen()
                 self.mRate = self.og
             elif self.top_individuals[0].get_fitness() == self.top_fitness:
                 # increment mult towards max
@@ -79,9 +80,11 @@ class Population(object):
 
     def crossover(self):
         if self.poolsize == 1:
-            choices = [0, 0]
+            board = copy.deepcopy(self.top_individuals[0].board)
+            self.population.append(Board(self.given_values, board, self.mRate))
+            return
         else:
-            choices = [0,random.randint(0, self.poolsize-1)]
+            choices = [0, random.randint(0, self.poolsize - 1)]
             # choices = random.sample(range(0, self.poolsize),2)
         board = copy.deepcopy(self.top_individuals[choices[0]].board)
         for j in range(1):
@@ -132,5 +135,5 @@ class Population(object):
             for cell in row:
                 self.Droo.write(cell, font=('Arial', 16, 'normal'))
                 self.Droo.goto(next(pcycle))
-        self.Droo.goto(-150, 20)
-        self.Droo.write(self.top_fitness, font=('Arial', 16, 'normal'))
+        self.Droo.goto(-160, 30)
+        self.Droo.write('{}% Solved'.format(round(100 - self.top_fitness * 100, 2)), font=('Arial', 16, 'normal'))

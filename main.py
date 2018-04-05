@@ -12,14 +12,14 @@ def find_values(board):
 
 
 def import_problem():
-    with open('problem.in', 'r') as fileobj:
+    with open('easyproblem.in', 'r') as fileobj:
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
 
 
 def import_solution():
-    with open('solution.in', 'r') as fileobj:
+    with open('easysolution.in', 'r') as fileobj:
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
