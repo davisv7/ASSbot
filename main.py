@@ -1,6 +1,7 @@
 import ast
-from popclass import Population
-import time
+from sudoclasses import Population
+
+
 
 def find_values(board):
     indices = {}
@@ -12,29 +13,17 @@ def find_values(board):
 
 
 def import_problem():
-    with open('easyproblem.in', 'r') as fileobj:
-        lines = fileobj.readlines()
-        board = [ast.literal_eval(x) for x in lines]
-        return board
-
-
-def import_solution():
-    with open('easysolution.in', 'r') as fileobj:
+    with open('problem.in', 'r') as fileobj:
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
 
 
 def main():
-    start = time.time()
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(10, 70000, 2, 0.01, given_values, 0)
-    [print(x) for x in pop.solution]
-    print(import_solution() == pop.solution)
-    end = time.time()
-    print('Time taken: {}'.format((end-start)/60))
+    pop = Population(15000, 5000,1, 1, given_values,100)
+    print(pop.solution)
 
 
 main()
-
