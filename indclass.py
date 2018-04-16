@@ -60,9 +60,9 @@ class Board(object):
 ###############################################################################################################
     def get_fitness(self):
         """
-        Function Use: This function checks the length of each row,column, and block by this I mean that there
-        is 9 slots per choice lets take rows for example 1,2,3,4,5,6,7,8,9 would be a len of 9 while
-        1,2,3,4,5,6,7,7,7 would be a length of 7 we then take this "score" and deveide it by 216 (which is then
+        Function Use: This function checks the length of each row,column, and block turned into sets.
+        for example 1,2,3,4,5,6,7,8,9 would be a len of 9 while 1,2,3,4,5,6,7,7,7 would be a length of 7
+        we then take this "score" and divide it by 216 (which is then
         worst possible fitness) and we round it to the 6th digit.
         """
         score = 0
