@@ -3,7 +3,8 @@
 import random
 ###############################################################################################################
 """
-This section just initializes the class for the board we plan to do the sudoku problems on, the mutation rate, and the given values.
+This section just initializes the class for the board we plan to do the sudoku problems on, the mutation rate,
+and the given values.
 """
 class Board(object):
     def __init__(self, given_values, board=None, mutation=.1):
@@ -19,7 +20,8 @@ class Board(object):
 ###############################################################################################################
     def generate(self):
         """
-        Function Use: .
+        Function Use: Generates the board in which the sudoku will be using to see an example of how this will
+        look check out the easyproblem.in or easysolution.in
         """
         self.board = [[' ' for i in range(9)] for j in range(9)]
         for key in self.given_values:
@@ -27,7 +29,8 @@ class Board(object):
 ###############################################################################################################
     def fill(self):
         """
-        Function Use: .
+        Function Use: Now that the board has been generated from the above funtion we now have to fill it in so
+        we will fill in all the given values for the rows, columns, and blocks.
         """
         # limit = {str(x):9 for x in range(1,10)}
         for i, row in enumerate(self.board):
@@ -57,7 +60,10 @@ class Board(object):
 ###############################################################################################################
     def get_fitness(self):
         """
-        Function Use: .
+        Function Use: This function checks the length of each row,column, and block by this I mean that there
+        is 9 slots per choice lets take rows for example 1,2,3,4,5,6,7,8,9 would be a len of 9 while
+        1,2,3,4,5,6,7,7,7 would be a length of 7 we then take this "score" and deveide it by 216 (which is then
+        worst possible fitness) and we round it to the 6th digit.
         """
         score = 0
         for row in self.romanizer():
