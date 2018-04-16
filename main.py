@@ -20,7 +20,7 @@ def import_problem():
     """
     Function Use: [Explain Me!]
     """
-    with open('problem.in', 'r') as fileobj:
+    with open('easyproblem.in', 'r') as fileobj:
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
@@ -29,7 +29,7 @@ def import_solution():
     """
     Function Use: [Explain Me!]
     """
-    with open('solution.in', 'r') as fileobj:
+    with open('easysolution.in', 'r') as fileobj:
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
@@ -41,7 +41,7 @@ def main():
     start = time.time()
     board = import_problem()
     given_values = find_values(board)
-    pop = Population(1000, 50000, 2, 0.01, given_values, 0)
+    pop = Population(10, 50000, 2, 0.01, given_values, 0)
     [print(x) for x in pop.solution]
     print(import_solution() == pop.solution)
     end = time.time()
