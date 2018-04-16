@@ -1,6 +1,10 @@
+###############################################################################################################
+# Credit: Vinny (Le God Programmer) and sidekick Scotty.
 import random
-
-
+###############################################################################################################
+"""
+This section just initializes the class for the board we plan to do the sudoku problems on, the mutation rate, and the given values.
+"""
 class Board(object):
     def __init__(self, given_values, board=None, mutation=.1):
         self.board = board
@@ -12,13 +16,19 @@ class Board(object):
         # else:
         #     self.mutate()
         #     self.fill()
-
+###############################################################################################################
     def generate(self):
+        """
+        Function Use: .
+        """
         self.board = [[' ' for i in range(9)] for j in range(9)]
         for key in self.given_values:
             self.board[key[0]][key[1]] = self.given_values[key]
-
+###############################################################################################################
     def fill(self):
+        """
+        Function Use: .
+        """
         # limit = {str(x):9 for x in range(1,10)}
         for i, row in enumerate(self.board):
             for j, cell in enumerate(row):
@@ -31,8 +41,11 @@ class Board(object):
                     self.board[i][j] = choice
                     # limit[self.board[i][j]]-=1
                     continue
-
+###############################################################################################################
     def mutate(self):
+        """
+        Function Use: .
+        """
         for i, row in enumerate(self.board):
             for j, cell in enumerate(row):
                 if (i, j) in self.given_values:
@@ -41,8 +54,11 @@ class Board(object):
                     if random.uniform(0, 1) <= self.mRate:
                         self.board[i][j] = str(random.randint(1, 9))
                         # self.board[i][j] = ' '
-
+###############################################################################################################
     def get_fitness(self):
+        """
+        Function Use: .
+        """
         score = 0
         for row in self.romanizer():
             score += (9 - len(set(row)))
@@ -51,14 +67,23 @@ class Board(object):
         for block in self.blocker():
             score += (9 - len(set(block)))
         return round(score/216,6)
-
+###############################################################################################################
     def romanizer(self):
+        """
+        Function Use: .
+        """
         return [x for x in self.board]
-
+###############################################################################################################
     def columizer(self):
+        """
+        Function Use: .
+        """
         return [[self.board[j][i] for j in range(len(self.board[i]))] for i in range(len(self.board))]
-
+###############################################################################################################
     def blocker(self): #TODO Fix this!
+        """
+        Function Use: .
+        """
         blocklist = []
         for i in range(3):
             chunk = self.board[i * 3:i * 3 + 3]
@@ -68,12 +93,22 @@ class Board(object):
                     block += chunk[k][j * 3:j * 3 + 3]
                 blocklist.append(block)
         return blocklist
-
+###############################################################################################################
     def get_row(self, index):
+        """
+        Function Use: .
+        """
         return [self.board[index]]
-
+###############################################################################################################
     def get_col(self, index):
+        """
+        Function Use: .
+        """
         return [self.board[i][index] for i in range(9)]
-
+###############################################################################################################
     def __repr__(self):
+        """
+        Function Use: .
+        """
         return str(self.board)
+###############################################################################################################
