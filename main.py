@@ -4,6 +4,8 @@
 import ast
 from popclass import Population
 import time
+
+
 ###############################################################################################################
 def find_values(board):
     """
@@ -15,6 +17,8 @@ def find_values(board):
             if e != ' ':
                 indices[(i, j)] = str(e)
     return indices
+
+
 ###############################################################################################################
 def import_problem():
     """
@@ -24,6 +28,8 @@ def import_problem():
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
+
+
 ###############################################################################################################
 def import_solution():
     """
@@ -33,6 +39,8 @@ def import_solution():
         lines = fileobj.readlines()
         board = [ast.literal_eval(x) for x in lines]
         return board
+
+
 ###############################################################################################################
 def main():
     """
@@ -40,12 +48,15 @@ def main():
     """
     start = time.time()
     board = import_problem()
+    solution = import_solution()
     given_values = find_values(board)
-    pop = Population(10, 50000, 2, 0.01, given_values, 0)
+    pop = Population(10, 70000, 2, 0.03, given_values, solution, 0, 2, 7)
     [print(x) for x in pop.solution]
-    print(import_solution() == pop.solution)
+    print(solution == pop.solution)
     end = time.time()
-    print('Time taken: {}'.format((end-start)/60))
+    print('Time taken: {}'.format((end - start) / 60))
+
+
 ###############################################################################################################
 main()
 ###############################################################################################################

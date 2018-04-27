@@ -11,7 +11,10 @@ class Population(object):
     """
     [This Section Does What?]
     """
-    def __init__(self, size, generations, poolsize, mRate, given_values, interval):
+    def __init__(self, size, generations, poolsize, mRate, given_values,solution, interval,switch,rococ):
+        self.rococ=rococ
+        self.switch = switch
+        self.solution=solution
         self.populationsize = size
         self.mRate = mRate
         self.poolsize = poolsize
@@ -26,12 +29,14 @@ class Population(object):
         # self.get_roullette()
         self.top_fitness = self.top_individuals[0].get_fitness()
         # print(self.top_individuals[0].get_fitness())
-        # self.create_screen()
-        self.og = mRate
-        self.mult = .005
-        self.max = .04
-        self.regenerate(interval)
         self.create_screen()
+        self.og = mRate
+        self.sw=switch
+        self.mult = .005
+        self.max = self.og+.03
+        self.update_screen()
+        self.regenerate(interval)
+        # self.create_screen()
         self.update_screen()
         self.wn.exitonclick()
 ###############################################################################################################
@@ -46,30 +51,36 @@ class Population(object):
             # self.get_roullette()
 
             # print when the fitness changes
-            if interval == 0:
-                if self.top_fitness != self.top_individuals[0].get_fitness():
+            # if interval == 0:
+                # if self.top_fitness != self.top_individuals[0].get_fitness():
                     # print(i, self.top_fitness, self.mRate)
                     # self.top_fitness = self.top_individuals[0].get_fitness()
                     # self.update_screen()
-                    pass
-            elif i % interval == 0:
+                    # pass
+            # elif i % interval == 0:
                 # print at an interval
-                print(i, self.top_individuals[0].get_fitness(), self.mRate)
+                # print(i, self.top_individuals[0].get_fitness(), self.mRate)
 
             # update fitness, reset mult
-            if self.top_fitness > self.top_individuals[0].get_fitness():
-                self.top_fitness = self.top_individuals[0].get_fitness()
-                print(i, self.top_fitness, self.mRate)
-                # if i>1000:
-                #     self.update_screen()
-                self.mRate = self.og
-            elif self.top_individuals[0].get_fitness() == self.top_fitness:
-                # increment mult towards max
-                self.mRate = self.mRate + self.mult
-                self.mRate = round(min(self.mRate + self.mult, self.max), 7)
-                # reset mult
-                if self.mRate == self.max:
+            if self.top_fitness >= self.top_individuals[0].get_fitness():
+                if self.top_fitness >self.top_individuals[0].get_fitness():
+                    print(i, self.top_fitness, self.mRate)
+                    if i>500:
+                        self.update_screen()
+                    self.top_fitness = self.top_individuals[0].get_fitness()
                     self.mRate = self.og
+                    self.switch = self.sw
+                else:
+                    self.mRate = round(min(self.mRate + self.mult, self.max), 7)
+                    self.switch = round(min(self.switch - 1, 0), 7)
+                    # reset mult
+                    if self.mRate == self.max: self.mRate = self.og
+                    if self.switch == 0: self.switch = self.sw
+
+            # elif self.top_individuals[0].get_fitness() == self.top_fitness:
+                # increment mult towards max
+                # self.mRate = self.mRate + self.mult
+
             if self.top_individuals[0].get_fitness() == 0:
                 # solution reached
                 self.solution = self.top_individuals[0].board
@@ -97,23 +108,42 @@ class Population(object):
         Function Use: [Explain Me!]
         """
         if self.poolsize == 1:
-            board = copy.deepcopy(self.top_individuals[0].board)
-            self.population.append(Board(self.given_values, board, self.mRate))
+            board = copy.deepcopy(self.top_individuals[0])
+            self.population.append(board)
             return
-        else:
-            choices = [0, random.randint(0, self.poolsize - 1)]
-            # choices = random.sample(range(0, self.poolsize),2)
-        board = copy.deepcopy(self.top_individuals[choices[0]].board)
-        for j in range(1):
-            roworcol = random.randint(0, 1)
+
+        choices = [0, random.randint(0, self.poolsize - 1)]
+        # choices = random.sample(range(0, self.poolsize),2)
+        board = copy.deepcopy(self.top_individuals[choices[0]])
+        indexlist = random.sample(range(8),self.switch)
+        for index in indexlist:
             index = random.randint(0, 8)
-            if roworcol == 0:
-                board = board[:index] + self.top_individuals[choices[1]].get_row(index) + board[index + 1:]
-            else:
+            if self.rococ==0: #cell
+                poslist=[]
+                while len(poslist)<self.switch:
+                    x=list(range(9))
+                    y=list(range(9))
+                    random.shuffle(x)
+                    random.shuffle(y)
+                    poslist.extend(list(zip(x,y))[:self.switch-len(poslist)])
+                    poslist=list(set(poslist)-set(self.given_values))
+                for i in range(self.switch):
+                    a,b=poslist[i][0],poslist[i][1]
+                    c,d=poslist[i-1][0],poslist[i-1][1]
+                    board.set_cell(a,b,self.top_individuals[choices[1]].get_cell(c,d))
+            elif self.rococ in [1,3,7]:
+                for i in range(9): #row
+                    board.set_cell(index,i,self.top_individuals[choices[1]].get_cell(index,i))
+            elif self.rococ in [2,3,7]:
                 col = self.top_individuals[choices[1]].get_col(index)
-                for i in range(len(col)):
-                    board[i][index] = col[i]
-        self.population.append(Board(self.given_values, board, self.mRate))
+                for i in range(len(col)): #col
+                    board.set_cell(i,index,col[i])
+            elif self.rococ in [4,7]:
+                block = self.top_individuals[choices[1]].get_block((index+1)%3,index%3)
+                board.set_block((index+1)%3,index%3, block)
+
+        self.population.append(board)
+
 ###############################################################################################################
     def mutate_all(self):
         """
@@ -166,9 +196,11 @@ class Population(object):
         x, y = self.pos
         self.Droo.penup()
         self.Droo.goto(next(pcycle))
-        for row in self.top_individuals[0].board:
-            for cell in row:
-                self.Droo.write(cell, font=('Arial', 16, 'normal'))
+        for i,row in enumerate(self.top_individuals[0].board):
+            for j,cell in enumerate(row):
+                if cell == self.solution[i][j]:
+                    self.Droo.write(cell, font=('Arial', 16, 'normal'))
+                # self.Droo.write(self.solution[i][j], font=('Arial', 16, 'normal'))
                 self.Droo.goto(next(pcycle))
         self.Droo.goto(-160, 30)
         self.Droo.write('{}% Solved'.format(round(100 - self.top_fitness * 100, 2)), font=('Arial', 16, 'normal'))
