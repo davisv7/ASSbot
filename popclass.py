@@ -4,9 +4,11 @@
 import turtle
 import random
 from itertools import cycle
+from itertools import product as cross
 import copy
 from indclass import Board
 import ast
+
 
 ###############################################################################################################
 class Population(object):
@@ -65,16 +67,16 @@ class Population(object):
             if self.top_fitness > self.top_individuals[0].get_fitness():
                 self.top_fitness = self.top_individuals[0].get_fitness()
                 print(i, self.top_fitness, self.mRate)
-                if i > 100:
+                if i > 1000:
                     self.update_screen()
                 self.mRate = self.og
             # elif self.top_individuals[0].get_fitness() == self.top_fitness:
-                # increment mult towards max
-                # self.mRate = self.mRate + self.mult
-                # self.mRate = round(min(self.mRate + self.mult, self.max), 7)
-                # reset mult
-                # if self.mRate >= self.max:
-                #     self.mRate = self.og
+            # increment mult towards max
+            #     self.mRate = self.mRate + self.mult
+            #     self.mRate = round(min(self.mRate + self.mult, self.max), 7)
+            # reset mult
+            # if self.mRate >= self.max:
+            #     self.mRate = self.og
             if self.top_individuals[0].get_fitness() == 0:
                 # solution reached
                 self.solution = self.top_individuals[0].board
@@ -149,7 +151,7 @@ class Population(object):
         normalizer = sum(element[1] for element in self.fitnesses)
         while len(self.top_individuals) < self.poolsize:
             rando = random.choice(self.fitnesses)
-            if random.uniform(0, 1) > 2*rando[1] / normalizer:
+            if random.uniform(0, 1) > 2 * rando[1] / normalizer:
                 if self.population[rando[0]] not in self.top_individuals:
                     self.top_individuals.append(self.population[rando[0]])
 
@@ -178,19 +180,19 @@ class Population(object):
         Function Use: [Explain Me!]
         """
         self.wn.clear()
-        pcycle = cycle([(self.pos[0]+i*20, self.pos[1] - j * 20) for j in range(0, 9) for i in range(0,9)])
+        pcycle = cycle([(self.pos[0] + i * 20, self.pos[1] - j * 20) for j in range(0, 9) for i in range(0, 9)])
         x, y = self.pos
         self.Droo.penup()
         self.Droo.goto(next(pcycle))
-        for i in range(9):
-            for j in range(9):
-                if self.solution[i][j] == self.top_individuals[0].board[i][j]:
-                    self.Droo.write(self.top_individuals[0].board[i][j], font=('Arial', 16, 'normal'))
-                self.Droo.goto(next(pcycle))
+        for i, j in cross(range(9), range(9)):
+            if self.top_individuals[0].board[i][j] == self.solution[i][j]:
+                self.Droo.write(self.top_individuals[0].board[i][j], font=('Arial', 16, 'normal'))
+            self.Droo.goto(next(pcycle))
         self.Droo.goto(-160, 30)
         self.Droo.write('{}% Solved'.format(round(100 - self.top_fitness * 100, 2)), font=('Arial', 16, 'normal'))
 
-    ###############################################################################################################
+        ###############################################################################################################
+
     def import_problem(self):
         """
         Function Use: [Explain Me!]

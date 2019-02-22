@@ -76,9 +76,9 @@ class Board(object):
         """
         score = 0
         for row in self.romanizer():
-            score += 2*(9 - len(set(row)))
+            score += 2 * (9 - len(set(row)))
         for col in self.columizer():
-            score += 2*(9 - len(set(col)))
+            score += 2 * (9 - len(set(col)))
         for block in self.blocker():
             score += (9 - len(set(block)))
         return score / 100

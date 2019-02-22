@@ -9,10 +9,7 @@ from popclass import Population
 
 class Simulation:
     def __init__(self):
-        self.population = Population(10, 50000, 5, 0.01,0)
-
-
-
+        self.population = Population(10, 50000, 2, 0.007, 0)
 
 
 ###############################################################################################################
