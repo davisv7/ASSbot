@@ -1,17 +1,28 @@
+###############################################################################################################
+# Credit: Vinny (Le God Programmer) and sidekick Scotty.
+# Import The following Libraries
 import turtle
 import random
 from itertools import cycle
+from itertools import product as cross
 import copy
 from indclass import Board
+import ast
 
 
+###############################################################################################################
 class Population(object):
-    def __init__(self, size, generations, poolsize, mRate, given_values, interval):
+    """
+    [This Section Does What?]
+    """
+
+    def __init__(self, size, generations, poolsize, mRate, interval):
         self.populationsize = size
         self.mRate = mRate
         self.poolsize = poolsize
-        self.given_values = given_values
         self.generations = generations
+        self.given_values = self.find_values()
+        self.solution = self.import_solution()
         self.population = []
         self.fitnesses = []
         self.top_individuals = []
@@ -21,7 +32,7 @@ class Population(object):
         # self.get_roullette()
         self.top_fitness = self.top_individuals[0].get_fitness()
         # print(self.top_individuals[0].get_fitness())
-        # self.create_screen()
+        self.create_screen()
         self.og = mRate
         self.mult = .005
         self.max = .04
@@ -30,7 +41,11 @@ class Population(object):
         self.update_screen()
         self.wn.exitonclick()
 
+    ###############################################################################################################
     def regenerate(self, interval):  # TODO instead of retaining the overall max, just retain the max of the generation
+        """
+        Function Use: [Explain Me!]
+        """
         for i in range(self.generations):
             self.repopulate()
             self.mutate_all()
@@ -52,33 +67,47 @@ class Population(object):
             if self.top_fitness > self.top_individuals[0].get_fitness():
                 self.top_fitness = self.top_individuals[0].get_fitness()
                 print(i, self.top_fitness, self.mRate)
-                # if i>1000:
-                #     self.update_screen()
+                if i > 1000:
+                    self.update_screen()
                 self.mRate = self.og
-            elif self.top_individuals[0].get_fitness() == self.top_fitness:
-                # increment mult towards max
-                self.mRate = self.mRate + self.mult
-                self.mRate = round(min(self.mRate + self.mult, self.max), 7)
-                # reset mult
-                if self.mRate == self.max:
-                    self.mRate = self.og
+            # elif self.top_individuals[0].get_fitness() == self.top_fitness:
+            # increment mult towards max
+            #     self.mRate = self.mRate + self.mult
+            #     self.mRate = round(min(self.mRate + self.mult, self.max), 7)
+            # reset mult
+            # if self.mRate >= self.max:
+            #     self.mRate = self.og
             if self.top_individuals[0].get_fitness() == 0:
                 # solution reached
                 self.solution = self.top_individuals[0].board
                 break
+            # elif self.top_individuals[0].get_fitness() < 0.10:
+            #     print('manually solvable')
         else:  # end of generations
             self.solution = self.top_individuals[0].board
 
+    ###############################################################################################################
     def populate(self):
+        """
+        Function Use: [Explain Me!]
+        """
         for i in range(self.populationsize):
             self.population.append(Board(self.given_values, mutation=self.mRate))
 
+    ###############################################################################################################
     def repopulate(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.population = self.population[:1]
         for i in range(1, self.populationsize):
             self.crossover()
 
+    ###############################################################################################################
     def crossover(self):
+        """
+        Function Use: [Explain Me!]
+        """
         if self.poolsize == 1:
             board = copy.deepcopy(self.top_individuals[0].board)
             self.population.append(Board(self.given_values, board, self.mRate))
@@ -98,42 +127,101 @@ class Population(object):
                     board[i][index] = col[i]
         self.population.append(Board(self.given_values, board, self.mRate))
 
+    ###############################################################################################################
     def mutate_all(self):
+        """
+        Function Use: [Explain Me!]
+        """
         for i in range(len(self.population)):
             self.population[i].mutate()
 
+    ###############################################################################################################
     def get_fitnesses(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.fitnesses = [(index, x.get_fitness()) for (index, x) in enumerate(self.population)]
 
+    ###############################################################################################################
     def get_roullette(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.get_fitnesses()
         normalizer = sum(element[1] for element in self.fitnesses)
         while len(self.top_individuals) < self.poolsize:
             rando = random.choice(self.fitnesses)
-            if random.uniform(0, 1) > rando[1] / normalizer:
+            if random.uniform(0, 1) > 2 * rando[1] / normalizer:
                 if self.population[rando[0]] not in self.top_individuals:
                     self.top_individuals.append(self.population[rando[0]])
 
+    ###############################################################################################################
     def get_top_individuals(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.get_fitnesses()
         self.fitnesses.sort(key=lambda r: r[1])
         self.top_individuals = [self.population[self.fitnesses[i][0]] for i in range(self.poolsize)]
 
+    ###############################################################################################################
     def create_screen(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.wn = turtle.Screen()
         self.Droo = turtle.Turtle()
         self.Droo.speed(0)
         self.pos = self.Droo.pos()
 
+    ###############################################################################################################
     def update_screen(self):
+        """
+        Function Use: [Explain Me!]
+        """
         self.wn.clear()
-        pcycle = cycle([(self.pos[0] + i * 20, self.pos[0] - j * 20) for j in range(0, 9) for i in range(0, 9)])
+        pcycle = cycle([(self.pos[0] + i * 20, self.pos[1] - j * 20) for j in range(0, 9) for i in range(0, 9)])
         x, y = self.pos
         self.Droo.penup()
         self.Droo.goto(next(pcycle))
-        for row in self.top_individuals[0].board:
-            for cell in row:
-                self.Droo.write(cell, font=('Arial', 16, 'normal'))
-                self.Droo.goto(next(pcycle))
+        for i, j in cross(range(9), range(9)):
+            if self.top_individuals[0].board[i][j] == self.solution[i][j]:
+                self.Droo.write(self.top_individuals[0].board[i][j], font=('Arial', 16, 'normal'))
+            self.Droo.goto(next(pcycle))
         self.Droo.goto(-160, 30)
         self.Droo.write('{}% Solved'.format(round(100 - self.top_fitness * 100, 2)), font=('Arial', 16, 'normal'))
+
+        ###############################################################################################################
+
+    def import_problem(self):
+        """
+        Function Use: [Explain Me!]
+        """
+        with open('easyproblem.in', 'r') as fileobj:
+            # with open('hardproblem.in', 'r') as fileobj:
+            lines = fileobj.readlines()
+            board = [ast.literal_eval(x) for x in lines]
+            return board
+
+    ##############################################################################################################
+    def import_solution(self):
+        """
+        Function Use: [Explain Me!]
+        """
+        with open('easysolution.in', 'r') as fileobj:
+            # with open('hardsolution.in', 'r') as fileobj:
+            lines = fileobj.readlines()
+            board = [ast.literal_eval(x) for x in lines]
+            return board
+
+    ###############################################################################################################
+    def find_values(self):
+        """
+        Function Use: [Explain Me!]
+        """
+        indices = {}
+        for i, r in enumerate(self.import_problem()):
+            for j, e in enumerate(r):
+                if e != ' ':
+                    indices[(i, j)] = str(e)
+        return indices

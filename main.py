@@ -1,40 +1,50 @@
+###############################################################################################################
+# Credit: Vinny (Le God Programmer) and sidekick Scotty.
+# Import The following Libraries
 import ast
-from popclass import Population
 import time
 
-def find_values(board):
-    indices = {}
-    for i, r in enumerate(board):
-        for j, e in enumerate(r):
-            if e != ' ':
-                indices[(i, j)] = str(e)
-    return indices
+from popclass import Population
 
 
-def import_problem():
-    with open('easyproblem.in', 'r') as fileobj:
-        lines = fileobj.readlines()
-        board = [ast.literal_eval(x) for x in lines]
-        return board
+class Simulation:
+    def __init__(self):
+        self.population = Population(10, 50000, 2, 0.007, 0)
 
 
-def import_solution():
-    with open('easysolution.in', 'r') as fileobj:
-        lines = fileobj.readlines()
-        board = [ast.literal_eval(x) for x in lines]
-        return board
-
-
+###############################################################################################################
 def main():
+    """
+    Function Use: [Explain Me!]
+    """
     start = time.time()
-    board = import_problem()
-    given_values = find_values(board)
-    pop = Population(10, 70000, 2, 0.01, given_values, 0)
-    [print(x) for x in pop.solution]
-    print(import_solution() == pop.solution)
+    Simulation()
+    # possibles(board)
+    # [print(x) for x in pop.solution]
+    # print(import_solution() == pop.solution)
     end = time.time()
-    print('Time taken: {}'.format((end-start)/60))
+    print('Time taken: {}'.format((end - start) / 60))
 
 
+def possibles(board):
+    # for it in range(64):
+    for i, row in enumerate(board):
+        # print(row)
+        for j, col in enumerate(row):
+            possibilities = list(map(str, range(1, 10)))
+            if col == " ":
+                # print(row)
+                [possibilities.remove(x) for x in board.get_row(i) if x in possibilities]
+                [possibilities.remove(x) for x in board.get_col(j) if x in possibilities]
+                [print(x) for x in board.blocker()]
+                # print(possibilities)
+                if len(possibilities) == 1:
+                    print(possibilities)
+                    board.board[i][j] = possibilities[0]
+    [print(x) for x in board]
+    # print(board)
+
+
+###############################################################################################################
 main()
-
+###############################################################################################################
